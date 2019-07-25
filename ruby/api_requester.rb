@@ -9,7 +9,7 @@ class ApiRequester
   end
 
   def get_orders(from, to, date_type)
-    puts Net::HTTP.post_form(
+    Net::HTTP.post_form(
       URI(@get_orders_url),
       from: from,
       to: to,

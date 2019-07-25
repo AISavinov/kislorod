@@ -1,7 +1,12 @@
-require_relative 'ApiRequester.rb'
+require_relative 'api_requester'
+require_relative 'date_handler'
+require_relative 'response_handler'
 
-# to_date = Time.now.to_i + 10_800
-# from_date = to_date - 86_400
-# date_type = 'created'
 
-ApiRequester.new.get_orders(from_date.to_s, to_date.to_s, date_type)
+date_handler = DateHandler.new
+response = ApiRequester.new.get_orders(date_handler.last_parse_date, date_handler.current_parse_date, 'created')
+response_handler = ResponseHandler.new(response)
+##рассылание данных по апишкам
+if response_handler.is_success_response ##и отправилли все данные
+  date_handler.write_last_parse_date
+end
