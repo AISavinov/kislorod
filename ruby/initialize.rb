@@ -8,5 +8,13 @@ response = ApiRequester.new.get_orders(date_handler.last_parse_date, date_handle
 response_handler = ResponseHandler.new(response)
 ##рассылание данных по апишкам
 if response_handler.is_success_response ##и отправилли все данные
+  data = response['data']
+  ga = GoogleAnalytics.new
+  data['leads'].each do |lead|
+  	cid = lead['ga_cid']
+  	tr = 
+  	ti = 
+    ga.send_transaction(cid, tr, ti)
+  end
   date_handler.write_last_parse_date
 end
