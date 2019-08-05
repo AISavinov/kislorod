@@ -2,8 +2,8 @@ require_relative 'analytics_service_base'
 
 class GoogleAnalytics < AnalyticsServiceBase
   def send_transaction(cid, tr, ti)
-    Net::HTTP.post_form(
-      URI("http;//www.google-analytics.com/collect"),
+    p Net::HTTP.post_form(
+      URI("https://www.google-analytics.com/debug/collect"),
       v: '1',
       tid: "sptosit u tolika",
       cid: cid,
@@ -11,6 +11,6 @@ class GoogleAnalytics < AnalyticsServiceBase
       tr: tr,
       ni: '1', ##????
       ti: ti ##???
-    )
+    ).body
   end
 end

@@ -1,7 +1,7 @@
 require 'json'
 
 class ResponseHandler
-
+  attr_accessor :response
   def initialize(response)
     @response = JSON.parse(response)
   end
