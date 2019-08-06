@@ -62,24 +62,23 @@ class RoiStat < AnalyticsServiceBase
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request = Net::HTTP::Post.new(url)
     request['content-type'] = 'application/json'
-    body = create_leads_body  ## не кидать если больше одного клинера
+    body = create_leads_body ## не кидать если больше одного клинера
     request.body = body
     response = http.request(request)
     puts response.read_body
   end
 
+  def create_users_body
+    create_body(@user_body)
+  end
 
-    def create_users_body
-      create_body(@user_body)
-    end
+  def create_leads_body
+    create_body(@lead_body)
+  end
 
-    def create_leads_body
-      create_body(@lead_body)
-    end
-
-    def create_body(body)
-      '[' + body.join(',') + ']'
-    end
+  def create_body(body)
+    '[' + body.join(',') + ']'
+  end
 
   def send_roistat
     send_users
@@ -113,14 +112,12 @@ class RoiStat < AnalyticsServiceBase
 
   def collect_bodies(lead)
     get_data_from_lead(lead)
-    @user_body.append("{\"id\":\"#{@user_id}\",\"name\":\"#{@name}\",\"phone\":\"#{@phone}\"}")
-    roi_status = if(st = @statuses.find { |s| s[:lead_status] == @status })
-      st[:roi]
-     else
-        nil
-      end
-    @lead_body.append("{\"id\":\"#{@lead_id}\"," \
-          "\"name\":\"#{[@user_id, @cost, @created_at ].compact.join('_')}\"," \
+    p @user_body.append("{\"id\":\"#{@user_id}\",\"name\":\"#{@name}\",\"phone\":\"#{@phone}\"}")
+    roi_status = if (st = @statuses.find { |s| s[:lead_status] == @status })
+                   st[:id]
+                 end
+    p @lead_body.append("{\"id\":\"#{@lead_id}\"," \
+          "\"name\":\"#{[@user_id, @cost, @created_at].compact.join('_')}\"," \
           "\"date_create\":\"#{Time.parse(@date_create).to_i}\"," \
           "\"status\":\"#{roi_status}\"," \
           "\"roistat\":\"#{@roi_id}\"," \

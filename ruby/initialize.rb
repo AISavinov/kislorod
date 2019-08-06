@@ -7,7 +7,7 @@ require_relative 'google_analytics'
 require_relative 'roi_stat'
 
 date_handler = DateHandler.new
-response = ApiRequester.new.get_orders(date_handler.last_parse_date, date_handler.current_parse_date, 'created')
+response = ApiRequester.new.get_orders(date_handler.last_parse_date - 100_000, date_handler.current_parse_date, 'created')
 response_handler = ResponseHandler.new(response)
 response_handler.leads
 # #рассылание данных по апишкам
@@ -15,11 +15,11 @@ if response_handler.is_success_response # #и отправилли все дан
   ga = GoogleAnalytics.new
   roi = RoiStat.new
   unless response_handler.count.zero?
-    response_handler.leads.each do |lead|
-      p lead
-      roi.collect_bodies(lead)
-    end
-    roi.send_roistat
+    # response_handler.leads.each do |lead|
+    #   lead
+    #   roi.collect_bodies(lead)
+    # end
+    # roi.send_roistat
     response_handler.leads.each do |lead|
       next unless lead['status'] == 'paid'
 
