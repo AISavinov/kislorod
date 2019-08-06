@@ -20,7 +20,7 @@ class DateHandler
   end
 
   def get_last_parse_date
-    file = File.open('last_parse_date', 'r') { |f| f.readline unless f.empty? }.chomp.to_i if File.exist?('last_parse_date')
+    file = File.open('last_parse_date', 'r') { |f| f.readline unless f.size < 10 }.chomp.to_i if File.exist?('last_parse_date')
     if file.nil? || file.zero?
       nil
     else
