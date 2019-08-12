@@ -85,45 +85,19 @@ class RoiStat < AnalyticsServiceBase
     send_leads
   end
 
-  def get_data_from_lead(lead)
-    customer = lead['customer']
-    cleaner = lead['cleaner']
-    if cleaner.size > 1
-      nil
-    else
-      cleaner = cleaner.first
-      @cleaner_name = ['cleaner', cleaner['first_name'], cleaner['last_name'], cleaner['phone']].compact.join('_')
-    end
-    @status = lead['status']
-    @cost = lead['cost']
-    @date_create = lead['created_at']
-    @created_at = @date_create.sub(' ', '_')
-    @phone = customer['phone']
-    @name = customer['first_name']
-    @user_id = if (u = [@name, @phone].compact.join('_')).empty?
-                 nil
-               else
-                 u
-    end
-    @roi_id = '100002' # #customer['roistat_first_visit']
-    @tr = lead['cost'] # #доход
-    @lead_id = [@created_at, @phone, @cost, @name].compact.join('_') # #trans_indif TODO: подумать,что выбрать для id
-  end
-
-  def collect_bodies(lead)
-    get_data_from_lead(lead)
-    p @user_body.append("{\"id\":\"#{@user_id}\",\"name\":\"#{@name}\",\"phone\":\"#{@phone}\"}")
-    roi_status = if (st = @statuses.find { |s| s[:lead_status] == @status })
+  def collect_bodies(parsed_lead)
+    @user_body.append("{\"id\":\"#{parsed_lead.user_id}\",\"name\":\"#{parsed_lead.customer_first_name}\",\"phone\":\"#{parsed_lead.phone}\"}")
+    roi_status = if (st = @statuses.find { |s| s[:lead_status] == parsed_lead.lead_status })
                    st[:id]
                  end
-    p @lead_body.append("{\"id\":\"#{@lead_id}\"," \
-          "\"name\":\"#{[@user_id, @cost, @created_at].compact.join('_')}\"," \
-          "\"date_create\":\"#{Time.parse(@date_create).to_i}\"," \
+    @lead_body.append("{\"id\":\"#{parsed_lead.lead_id}\"," \
+          "\"name\":\"#{parsed_lead.lead_name}\"," \
+          "\"date_create\":\"#{Time.parse(parsed_lead.created_at).to_i}\"," \
           "\"status\":\"#{roi_status}\"," \
-          "\"roistat\":\"#{@roi_id}\"," \
-          "\"price\":\"#{@cost}\"," \
-          '"cost":"0",' \
-          "\"client_id\":\"#{@user_id}\"," \
-          "\"fields\":{\"cleaner\":\"#{@cleaner_name}\"}}")
-  end
+          "\"roistat\":\"#{parsed_lead.roi_id}\"," \
+          "\"price\":\"#{parsed_lead.roi_id}\"," \
+          "\"cost\":\"0\"," \
+          "\"client_id\":\"#{parsed_lead.user_id}\"," \
+          "\"fields\":{\"cleaner\":\"#{parsed_lead.cleaner_phones}\"}}")
+        end
 end
