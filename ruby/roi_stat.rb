@@ -96,7 +96,7 @@ class RoiStat < AnalyticsServiceBase
           "\"status\":\"#{roi_status}\"," \
           "\"roistat\":\"#{parsed_lead.roi_id}\"," \
           "\"price\":\"#{parsed_lead.roi_id}\"," \
-          "\"cost\":\"0\"," \
+          '"cost":"0",' \
           "\"client_id\":\"#{parsed_lead.user_id}\"," \
           "\"fields\":{\"cleaner\":\"#{parsed_lead.cleaner_phones}\"}}")
         end
