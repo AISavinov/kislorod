@@ -4,6 +4,7 @@ require_relative 'analytics_service_base'
 require 'securerandom'
 require 'time'
 class RoiStat < AnalyticsServiceBase
+  attr_reader :user_body, :lead_body
   def initialize
     @user_body = []
     @lead_body = []
@@ -95,9 +96,10 @@ class RoiStat < AnalyticsServiceBase
           "\"date_create\":\"#{Time.parse(parsed_lead.created_at).to_i}\"," \
           "\"status\":\"#{roi_status}\"," \
           "\"roistat\":\"#{parsed_lead.roi_id}\"," \
-          "\"price\":\"#{parsed_lead.roi_id}\"," \
+          "\"price\":\"#{parsed_lead.cost}\"," \
           '"cost":"0",' \
           "\"client_id\":\"#{parsed_lead.user_id}\"," \
           "\"fields\":{\"cleaner\":\"#{parsed_lead.cleaner_phones}\"}}")
         end
 end
+# #TODO for user body:  what to do if phone doesnt exists??????

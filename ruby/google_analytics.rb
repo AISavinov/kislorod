@@ -10,10 +10,10 @@ class GoogleAnalytics < AnalyticsServiceBase
   end
 
   def send_transaction(lead)
-    get_data_from_lead(lead)
     ga_id = lead.ga_id
     cost = lead.cost
     lead_id = lead.lead_id
+    lead.lead_name
     p Net::HTTP.post_form(
       URI('http://www.google-analytics.com/collect'),
       v: '1',
