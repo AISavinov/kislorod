@@ -15,7 +15,7 @@ last_parse_date = if !(lpd = db.get_last_parse_date).empty?
 else 
   date_handler.current_parse_date
 end
-response = ApiRequester.new.get_orders(last_parse_date, date_handler.current_parse_date, 'created') ### TODO: remove 100_000
+response = ApiRequester.new.get_orders(last_parse_date-1000000, date_handler.current_parse_date, 'created') ### TODO: remove 100_000
 response_handler = ResponseHandler.new(response)
 if response_handler.is_success_response # #и отправилли все данные
   ga = GoogleAnalytics.new
@@ -47,7 +47,7 @@ if response_handler.is_success_response # #и отправилли все дан
         db.write_undefind_user(user_id) unless db.undefind_user_already_exists(user_id)
       end
     end
-    roi.send_roistat
+    #roi.send_roistat
   end
   db.write_parse_date(date_handler.current_parse_date)
   db.close
