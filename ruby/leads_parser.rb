@@ -4,17 +4,12 @@ require 'json'
 
 class LeadsParser
   attr_accessor :is_cyclic, :ym_id, :phone, :created_at, :subbed_created_at, :cost, :cleaner_phones, :lead_status, :customer_first_name, :user_id, :roi_id, :ga_id, :lead_id, :lead_name
-  # #TODO: make parsed result with needed data for analytics handlers
+
   def parse(lead)
-    customer = if true
-      puts 'S___________________________________________S'
-      puts lead##lead['customer']
-      puts 'E___________________________________________E'
-      lead['customer']
-    end
+    customer = lead['customer']
     cleaner = lead['cleaner']
     options = lead['options']
-    @phone = lead['phone']
+    @phone = customer['phone']
     @created_at = lead['created_at']
     @subbed_created_at = @created_at.sub(' ', '_')
     @cost = lead['cost']

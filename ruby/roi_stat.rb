@@ -42,6 +42,7 @@ class RoiStat < AnalyticsServiceBase
         "lead_status": 'deleted'
       }
     ]
+    @logger = Logger.new('roi_log')
   end
 
   def send_users
@@ -51,9 +52,9 @@ class RoiStat < AnalyticsServiceBase
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request = Net::HTTP::Post.new(url)
     request['content-type'] = 'application/json'
-    request.body = create_users_body ## что делать если phone = nil???
+    request.body = create_users_body
     response = http.request(request)
-    puts response.read_body
+    @logger.info("Roi users response:\n" + response.read_body)
   end
 
   def send_leads
@@ -63,10 +64,10 @@ class RoiStat < AnalyticsServiceBase
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request = Net::HTTP::Post.new(url)
     request['content-type'] = 'application/json'
-    body = create_leads_body ## не кидать если больше одного клинера
+    body = create_leads_body
     request.body = body
     response = http.request(request)
-    puts response.read_body
+    @logger.info("Roi leads response:\n" + response.read_body)
   end
 
   def create_users_body
@@ -82,7 +83,9 @@ class RoiStat < AnalyticsServiceBase
   end
 
   def send_roistat
+    @logger.info("User body:\n" + @user_body.to_s)
     send_users
+    @logger.info("Leads body:\n" + @lead_body.to_s)
     send_leads
   end
 
@@ -102,4 +105,3 @@ class RoiStat < AnalyticsServiceBase
           "\"fields\":{\"cleaner\":\"#{parsed_lead.cleaner_phones}\"}}")
         end
 end
-# #TODO for user body:  what to do if phone doesnt exists??????

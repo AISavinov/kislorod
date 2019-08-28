@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require_relative 'api_requester'
 require_relative 'date_handler'
@@ -8,12 +9,13 @@ require_relative 'database_handler'
 db = DatabaseHandler.new
 date_handler = DateHandler.new
 parser = LeadsParser.new
-response = ApiRequester.new.get_orders(10000, date_handler.current_parse_date, 'created')
+response = ApiRequester.new.get_orders(10_000, date_handler.current_parse_date, 'created')
 response_handler = ResponseHandler.new(response)
 if response_handler.is_success_response # #и отправилли все данные
   unless response_handler.count.zero?
     response_handler.leads.each do |lead|
-    	next unless lead['customer'].is_a? Hash
+      next unless lead['customer'].is_a? Hash
+
       parser.parse(lead)
       user_id = parser.user_id
       roi_id = parser.roi_id
@@ -28,5 +30,5 @@ if response_handler.is_success_response # #и отправилли все дан
       end
     end
   end
-  db.close
 end
+db.close
