@@ -4,6 +4,7 @@ require_relative 'analytics_service_base'
 require 'securerandom'
 require 'time'
 class RoiStat < AnalyticsServiceBase
+  attr_reader :user_body, :lead_body
   def initialize
     @user_body = []
     @lead_body = []
@@ -41,6 +42,7 @@ class RoiStat < AnalyticsServiceBase
         "lead_status": 'deleted'
       }
     ]
+    @logger = Logger.new('roi_log')
   end
 
   def send_users
@@ -50,9 +52,9 @@ class RoiStat < AnalyticsServiceBase
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request = Net::HTTP::Post.new(url)
     request['content-type'] = 'application/json'
-    request.body = create_users_body ## что делать если phone = nil???
+    request.body = create_users_body
     response = http.request(request)
-    puts response.read_body
+    @logger.info("Roi users response:\n" + response.read_body)
   end
 
   def send_leads
@@ -62,10 +64,10 @@ class RoiStat < AnalyticsServiceBase
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     request = Net::HTTP::Post.new(url)
     request['content-type'] = 'application/json'
-    body = create_leads_body ## не кидать если больше одного клинера
+    body = create_leads_body
     request.body = body
     response = http.request(request)
-    puts response.read_body
+    @logger.info("Roi leads response:\n" + response.read_body)
   end
 
   def create_users_body
@@ -81,7 +83,9 @@ class RoiStat < AnalyticsServiceBase
   end
 
   def send_roistat
+    @logger.info("User body:\n" + @user_body.to_s)
     send_users
+    @logger.info("Leads body:\n" + @lead_body.to_s)
     send_leads
   end
 
@@ -95,7 +99,7 @@ class RoiStat < AnalyticsServiceBase
           "\"date_create\":\"#{Time.parse(parsed_lead.created_at).to_i}\"," \
           "\"status\":\"#{roi_status}\"," \
           "\"roistat\":\"#{parsed_lead.roi_id}\"," \
-          "\"price\":\"#{parsed_lead.roi_id}\"," \
+          "\"price\":\"#{parsed_lead.cost}\"," \
           '"cost":"0",' \
           "\"client_id\":\"#{parsed_lead.user_id}\"," \
           "\"fields\":{\"cleaner\":\"#{parsed_lead.cleaner_phones}\"}}")
