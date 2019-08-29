@@ -18,6 +18,8 @@ begin
   end
   response = ApiRequester.new.get_orders(last_parse_date, date_handler.current_parse_date, 'created')
   response_handler = ResponseHandler.new(response)
+  logger = Logger.new('stdout')
+  logger.info("Started job; kislorod api succeed response: #{response_handler.is_success_response}")
   if response_handler.is_success_response
     ga = GoogleAnalytics.new
     roi = RoiStat.new
@@ -51,6 +53,7 @@ begin
       roi.send_roistat
     end
     db.write_parse_date(date_handler.current_parse_date)
+    logger.info("Succeed at #{date_handler.current_parse_date}")
   end
   db.close
 rescue StandardError => e
