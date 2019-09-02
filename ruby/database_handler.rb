@@ -31,7 +31,7 @@ class DatabaseHandler
   end
 
   def get_last_parse_date
-    @db.execute('SELECT * FROM parse_date ORDER BY CREATED_AT LIMIT 1')
+    @db.execute('SELECT * FROM parse_date ORDER BY CREATED_AT DESC LIMIT 1')
   end
 
   def exists_in_db(customer_id)
