@@ -16,7 +16,7 @@ begin
                     else
                       date_handler.current_parse_date
   end
-  response = ApiRequester.new.get_orders(last_parse_date, date_handler.current_parse_date, 'created')
+  response = ApiRequester.new.get_orders(last_parse_date, date_handler.current_parse_date, 'changed')
   response_handler = ResponseHandler.new(response)
   logger = Logger.new('stdout')
   logger.info("Started job; kislorod api succeed response: #{response_handler.is_success_response}")
