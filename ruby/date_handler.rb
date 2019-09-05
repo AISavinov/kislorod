@@ -12,6 +12,6 @@ class DateHandler
   private
 
   def get_current_date
-    Time.now.to_i + 10_800
+    Time.now.to_i
   end
 end
