@@ -7,6 +7,7 @@ require_relative 'google_analytics'
 require_relative 'roi_stat'
 require_relative 'leads_parser'
 require_relative 'database_handler'
+require_relative 'plarin'
 
 begin
   db = DatabaseHandler.new
@@ -16,7 +17,7 @@ begin
                     else
                       date_handler.current_parse_date
   end
-  response = ApiRequester.new.get_orders(last_parse_date, date_handler.current_parse_date, 'changed')
+  response = ApiRequester.new.get_orders(last_parse_date - 1000000, date_handler.current_parse_date, 'changed')
   response_handler = ResponseHandler.new(response)
   logger = Logger.new('stdout')
   logger.info("Started job; kislorod api succeed response: #{response_handler.is_success_response}")
@@ -24,6 +25,7 @@ begin
     ga = GoogleAnalytics.new
     roi = RoiStat.new
     parser = LeadsParser.new
+    plarin = Plarin.new
     unless response_handler.count.zero?
       response_handler.leads.each do |lead|
         next unless lead['customer'].is_a? Hash
@@ -35,7 +37,13 @@ begin
         ym_id = parser.ym_id
         if roi_id && ga_id && ym_id
           roi.collect_bodies(parser)
-          ga.send_transaction(parser) if parser.lead_status == 'paid'
+          if parser.lead_status == 'paid'
+            ga.send_transaction(parser)
+            utm = roi.get_utm_content(parser.lead_id)
+            if !utm.nil?
+              plarin.send(utm, parser.cost)
+            end
+          end
           if parser.is_cyclic
             db.write_cyclic_lead_info(user_id, ga_id, ym_id, roi_id) unless db.exists_in_db(user_id)
           end
@@ -45,7 +53,13 @@ begin
           parser.ym_id = u[2]
           parser.roi_id = u[3]
           roi.collect_bodies(parser)
-          ga.send_transaction(parser) if parser.lead_status == 'paid'
+          if parser.lead_status == 'paid'
+            ga.send_transaction(parser)
+            utm = roi.get_utm_content(parser.lead_id)
+            if !utm.nil?
+              plarin.send(utm, parser.cost)
+            end
+          end
         else
           db.write_undefind_user(user_id) unless db.undefind_user_already_exists(user_id)
         end
@@ -58,5 +72,5 @@ begin
   db.close
 rescue StandardError => e
   logger = Logger.new('stderr')
-  logger.error("In initialize:\n" + e)
+  logger.error("In initialize:\n" + e.to_s)
 end

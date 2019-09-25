@@ -3,6 +3,7 @@
 require_relative 'analytics_service_base'
 require 'securerandom'
 require 'time'
+require 'openssl'
 class RoiStat < AnalyticsServiceBase
   attr_reader :user_body, :lead_body
   def initialize
@@ -43,6 +44,43 @@ class RoiStat < AnalyticsServiceBase
       }
     ]
     @logger = Logger.new('roi_log')
+  end
+
+  def get_utm_content(lead_id)
+    parsed_response = get_roi_order(lead_id)
+
+    if parsed_response["status"] != "success"
+      @logger.error("Could not get utm content from roi with roi id: #{lead_id}")
+      nil
+    elsif parsed_response["data"].size != 1
+      @logger.error("Two more or no leads with id while getting utm content: #{lead_id}")
+      nil
+    else
+      data = parsed_response["data"].first
+      visit = data["visit"]
+      if !visit.nil?
+        utm = visit["utm_content"]
+        @logger.info("Got lead with utm content: #{utm}") unless utm.nil?
+        utm
+      else
+        nil
+      end
+
+    end
+  end
+
+  def get_roi_order(lead_id)
+    url = URI("https://cloud.roistat.com/api/v1/project/integration/order/list?key=#{@key}&project=#{@project_id}")
+
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    request = Net::HTTP::Post.new(url)
+    request["content-type"] = 'application/json'
+    request.body = "{\"filters\":[{\"field\":\"id\",\"operator\":\"=\",\"value\":\"#{lead_id}\"}],\"extend\":[\"visit\"]}"
+    response = http.request(request)
+    JSON.parse(response.read_body)
   end
 
   def send_users
