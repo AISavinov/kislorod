@@ -38,7 +38,7 @@ begin
         if roi_id && ga_id && ym_id
           roi.collect_bodies(parser)
           if parser.lead_status == 'paid'
-            ga.send_transaction(parser)
+            ga.send_transaction(parser) if !(parser.ga_id.nil?) ## dont know why we have to accert it
             utm = roi.get_utm_content(parser.lead_id)
             if !utm.nil?
               plarin.send(utm, parser.cost)
@@ -54,7 +54,7 @@ begin
           parser.roi_id = u[3]
           roi.collect_bodies(parser)
           if parser.lead_status == 'paid'
-            ga.send_transaction(parser)
+            ga.send_transaction(parser) if !(parser.ga_id.nil?)
             utm = roi.get_utm_content(parser.lead_id)
             if !utm.nil?
               plarin.send(utm, parser.cost)
