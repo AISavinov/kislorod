@@ -46,24 +46,25 @@ class RoiStat < AnalyticsServiceBase
     @logger = Logger.new('roi_log')
   end
 
-  def get_utm_content(lead_id)
+  def get_utm_content(lead_id) # #TODO: get utm content not for one lead but for all needed leads by one request
     parsed_response = get_roi_order(lead_id)
-
-    if parsed_response["status"] != "success"
-      @logger.error("Could not get utm content from roi with roi id: #{lead_id}")
+    status = parsed_response['status']
+    if status == 'error' && parsed_response['error'] == 'request_limit_error'
+      sleep(10)
+      get_utm_content(lead_id)
+    elsif status != 'success'
+      @logger.error("Could not get utm content from roi with roi id: #{lead_id}\n#{parsed_response}")
       nil
-    elsif parsed_response["data"].size != 1
-      @logger.error("Two more or no leads with id while getting utm content: #{lead_id}")
+    elsif parsed_response['data'].size != 1
+      @logger.error("Two more or no leads with id while getting utm content: #{lead_id}\n#{parsed_response}")
       nil
     else
-      data = parsed_response["data"].first
-      visit = data["visit"]
-      if !visit.nil?
-        utm = visit["utm_content"]
+      data = parsed_response['data'].first
+      visit = data['visit']
+      unless visit.nil?
+        utm = visit['utm_content']
         @logger.info("Got lead with utm content: #{utm}") unless utm.nil?
         utm
-      else
-        nil
       end
 
     end
@@ -77,7 +78,7 @@ class RoiStat < AnalyticsServiceBase
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
     request = Net::HTTP::Post.new(url)
-    request["content-type"] = 'application/json'
+    request['content-type'] = 'application/json'
     request.body = "{\"filters\":[{\"field\":\"id\",\"operator\":\"=\",\"value\":\"#{lead_id}\"}],\"extend\":[\"visit\"]}"
     response = http.request(request)
     JSON.parse(response.read_body)

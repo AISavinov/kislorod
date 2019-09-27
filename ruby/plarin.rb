@@ -16,7 +16,7 @@ class Plarin
         g10: ad_id,
         g10_value: payment
       ).body
-      @logger.info("Send lead with utm_content:#{ad_id}, cost: payment\n#{response.to_s}")
+      @logger.info("Send lead with utm_content:#{ad_id}, cost: payment\n#{response}")
     end
   end
 end

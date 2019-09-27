@@ -38,30 +38,13 @@ begin
         if roi_id && ga_id && ym_id
           roi.collect_bodies(parser)
           if parser.lead_status == 'paid'
-            ga.send_transaction(parser) if !(parser.ga_id.nil?) ## dont know why we have to accert it
+            ga.send_transaction(parser) if !parser.ga_id.nil? && parser.ga_id != '' ## dont know why we have to accert it
             utm = roi.get_utm_content(parser.lead_id)
-            if !utm.nil?
-              plarin.send(utm, parser.cost)
-            end
-          end
-          if parser.is_cyclic
-            db.write_cyclic_lead_info(user_id, ga_id, ym_id, roi_id) unless db.exists_in_db(user_id)
-          end
-        elsif db.exists_in_db(user_id)
-          u = db.get_user_by_id(user_id)
-          parser.ga_id = u[1]
-          parser.ym_id = u[2]
-          parser.roi_id = u[3]
-          roi.collect_bodies(parser)
-          if parser.lead_status == 'paid'
-            ga.send_transaction(parser) if !(parser.ga_id.nil?)
-            utm = roi.get_utm_content(parser.lead_id)
-            if !utm.nil?
-              plarin.send(utm, parser.cost)
-            end
+            plarin.send(utm, parser.cost) unless utm.nil?
           end
         else
           db.write_undefind_user(user_id) unless db.undefind_user_already_exists(user_id)
+          logger.error("No ga or ym or roi id in user info in lead with id: #{parser.lead_id}")
         end
       end
       roi.send_roistat

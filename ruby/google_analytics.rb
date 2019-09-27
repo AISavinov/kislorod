@@ -13,7 +13,7 @@ class GoogleAnalytics < AnalyticsServiceBase
 
   def send_transaction(lead)
     splited_ga_id = lead.ga_id.split('.')
-    if splited_ga_id.size == 4 && splited_ga_id.first.start_with?("GA") && check_ga_id_part_is_digit(splited_ga_id[-2]) && check_ga_id_part_is_digit(splited_ga_id.last)
+    if splited_ga_id.size == 4 && splited_ga_id.first.start_with?('GA') && check_ga_id_part_is_digit(splited_ga_id[-2]) && check_ga_id_part_is_digit(splited_ga_id.last)
       ga_id = splited_ga_id[-2] + '.' + splited_ga_id.last
       cost = lead.cost
       lead_id = lead.lead_id
@@ -48,16 +48,10 @@ class GoogleAnalytics < AnalyticsServiceBase
       @logger.error("Unknown format of ga id: #{lead.ga_id}")
     end
   end
+
+  private
+
+  def check_ga_id_part_is_digit(str)
+    str.gsub(/\d/, '') == ''
+  end
 end
-
-def check_ga_id_part_is_digit(str)
-  str.gsub(/\d/, "") == ""
-end
-
-
-#http://www.google-analytic.ru/collect?v=1&tid=UA-144825607-1&cid=GA1.2.1014009151.1567436559&t=item&tr=3740.0&ni=1&ti=7659&iq=1&ip=3740.0&in=rooms-4;bathrooms-2;kitchen-1;hall-1&ic=rooms-4;bathrooms-2;kitchen-1;hall-1
-## cid: GA1.2.1014009151.1567436559,
-# ti: 7659,
-# tr: 3740.0,
-# in,ic: rooms-4;bathrooms-2;kitchen-1;hall-1
-# tid:UA-144825607-1
