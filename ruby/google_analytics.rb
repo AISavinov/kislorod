@@ -25,10 +25,10 @@ class GoogleAnalytics < AnalyticsServiceBase
         cid: ga_id,
         t: 'transaction',
         tr: cost,
-        ni: '1',
+        ni: 1,
         ti: lead_id
       )
-      @logger.info("Send transaction:\nga_id: #{ga_id},\nlead_id: #{lead_id},\ncost: #{cost},\nin,ic: #{lead_name}")
+      @logger.info("Send transaction:\nga_id: #{ga_id}(#{lead.ga_id}),\nlead_id: #{lead_id},\ncost: #{cost},\nin,ic: #{lead_name}")
       Net::HTTP.post_form(
         URI('http://www.google-analytics.com/collect'),
         v: '1',
@@ -36,14 +36,14 @@ class GoogleAnalytics < AnalyticsServiceBase
         cid: ga_id,
         t: 'item',
         tr: cost,
-        ni: '1',
+        ni: 1,
         ti: lead_id,
         iq: '1',
         ip: cost,
         in: lead_name,
         ic: lead_name
       )
-      @logger.info("Send item:\nga_id: #{ga_id},\nlead_id: #{lead_id},\ncost: #{cost},\nin,ic: #{lead_name}")
+      @logger.info("Send item:\nga_id: #{ga_id}(#{lead.ga_id}),\nlead_id: #{lead_id},\ncost: #{cost},\nin,ic: #{lead_name}")
     else
       @logger.error("Unknown format of ga id: #{lead.ga_id}")
     end
